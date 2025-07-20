@@ -23,5 +23,5 @@ phases:
       - echo "📤 Pushing image to ECR"
       - docker push $IMAGE_URI
       - echo "creating new revision of ECS task definition"
-      # - bash create-new-fargate-revision.sh
-      # - echo "Updating ECS task definition with secret references"
+      - bash create-new-fargate-revision.sh
+      - echo "Updating ECS task definition with secret references"
