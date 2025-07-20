@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin $ECR_BASE_URI
+      - TIMESTAMP=$(date +%Y%m%d)
+      - IMAGE_TAG=test-dev-$TIMESTAMP
+      - REPO_URI=$ECR_BASE_URI/$REPO_NAME
+      - IMAGE_URI=$REPO_URI:$IMAGE_TAG
+      - export IMAGE_TAG IMAGE_URI REPO_URI
+
+  build:
+    commands:
+      - echo "🐳 Building Docker image with tag $IMAGE_TAG"
+      - docker build -t $IMAGE_TAG .
+      - docker tag $IMAGE_TAG $REPO_URI:$IMAGE_TAG
+      - echo "📦 Image tagged as $IMAGE_URI"
+
+  post_build:
+    commands:
+      - echo "📤 Pushing image to ECR"
+      - docker push $IMAGE_URI
+      - echo "creating new revision of ECS task definition"
+      # - bash create-new-fargate-revision.sh
+      # - echo "Updating ECS task definition with secret references"
